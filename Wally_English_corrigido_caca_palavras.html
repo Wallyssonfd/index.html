@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wally English</title>
+<style>
+:root{--blue:#2f63e9;--purple:#4938d6;--bg:#f4f7fc;--ink:#172033;--card:#fff;--green:#b8f5cf}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;padding:20px 16px 16px;position:sticky;top:0;z-index:10;box-shadow:0 3px 12px #0003}
+header h1{margin:0;font-size:30px}header p{margin:5px 0 14px;font-size:16px}
+nav{display:flex;gap:9px;overflow:auto}nav button{border:0;border-radius:15px;padding:11px 16px;background:#ffffff22;color:#fff;font-weight:bold;font-size:15px;white-space:nowrap}nav button.active{background:#fff;color:var(--blue)}
+main{max-width:900px;margin:auto;padding:24px 16px 50px}.page{display:none}.page.active{display:block}
+.card{background:var(--card);border-radius:25px;padding:24px;margin:16px 0;box-shadow:0 8px 24px #22335518}
+.hero{text-align:center}.hero h2{font-size:30px;margin:8px 0}.hero p{font-size:18px;line-height:1.4}
+.btn{border:0;border-radius:16px;padding:14px 20px;background:var(--blue);color:#fff;font-size:17px;font-weight:bold;margin:6px;cursor:pointer}.btn.alt{background:#eef1ff;color:#3831a8}.listen-btn{border:0;border-radius:10px;padding:8px 11px;background:#eef1ff;color:#2449b8;font-size:18px;cursor:pointer;margin-left:8px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.stat{text-align:center;padding:20px}.stat strong{display:block;font-size:27px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}.controls select{padding:12px;border-radius:12px;border:1px solid #ccd6e8;font-size:16px}
+.word-card{padding:16px;border-radius:18px;background:#f7f9ff;margin:10px 0;border:1px solid #e3e9f5}.word-card h3{margin:0;color:var(--blue);font-size:23px}.word-card p{margin:7px 0;font-size:16px}
+.story-card{cursor:pointer;transition:.15s}.story-card:hover{transform:translateY(-2px)}.story-card h3{margin:0 0 8px;color:var(--blue)}.tag{display:inline-block;background:#eef1ff;color:#3d32a8;padding:6px 10px;border-radius:20px;font-size:13px;font-weight:bold;margin-right:5px}
+.reader-title{font-size:29px;color:var(--blue);margin-top:0}.story-text{font-size:19px;line-height:1.8}.story-text .tapword{color:#1457d9;font-weight:bold;text-decoration:underline;text-decoration-style:dotted;cursor:pointer}.story-text .tapword:active{background:#dbeafe;border-radius:4px}
+.tip{background:#eef6ff;border-left:5px solid var(--blue);padding:13px;border-radius:10px;line-height:1.5}.meaning{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);width:min(92vw,480px);background:#172033;color:#fff;padding:17px 20px;border-radius:18px;box-shadow:0 10px 35px #0008;display:none;z-index:30}.meaning strong{color:#a5c5ff;font-size:19px}.meaning small{display:block;margin-top:6px;color:#dbe5f5}
+.question{background:#f7f9ff;padding:16px;border-radius:15px;margin-top:18px}.answer{display:block;width:100%;padding:12px;margin-top:8px;text-align:left;border:1px solid #d6deed;background:#fff;border-radius:11px;font-size:16px}.correct{background:#d9fbe4;border-color:#31a05a}.wrong{background:#ffe1e1;border-color:#d33}
+.board{display:grid;gap:2px;justify-content:center;margin:18px auto;width:100%;max-width:100%;overflow:visible;box-sizing:border-box}.cell{width:38px;height:38px;min-width:0;min-height:0;border:1px solid #cdd9eb;border-radius:7px;background:#fff;font-weight:bold;font-size:clamp(12px,3.8vw,19px);display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;touch-action:manipulation}.cell.selected{background:#ffe9a8}.cell.found{background:var(--green);color:#126638}.cell.found.selected{background:#ffe9a8;color:#126638;outline:2px solid #d59a00}
+.targets{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}.target{background:#eef1ff;color:#3d32a8;padding:8px 12px;border-radius:20px;font-weight:bold;cursor:pointer}.target.done{background:var(--green);color:#126638;text-decoration:line-through}.hinted{box-shadow:0 0 0 3px #ffe9a8 inset}.hint-cell{background:#fff3b8!important;color:#8a6500!important}.practice-box{background:#f7f9ff;border:1px solid #d6deed;padding:12px;border-radius:12px;margin:12px 0}.feedback{margin-top:8px;font-weight:bold;line-height:1.4}.pron-good{color:#126638}.pron-ok{color:#9a6a00}.pron-bad{color:#b3261e}.story-paragraph{margin:18px 0;padding:14px;border:1px solid #e3e9f5;border-radius:16px;background:#fff}.story-paragraph-controls{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.story-paragraph-controls .btn{margin:2px;padding:10px 13px;font-size:15px}.saved-score{font-size:14px;color:#126638;font-weight:bold;margin-top:6px}
+@media(max-width:480px){.cell{font-size:14px}.story-text{font-size:18px}.card{padding:15px}main{padding:12px 6px}.board{gap:2px}.target{font-size:13px;padding:7px 9px}}
+</style>
+</head>
+<body>
+<header>
+<h1>🇺🇸 Wally English</h1><p>Learn English with vocabulary, stories and games</p>
+<nav>
+<button class="tab active" data-page="home">🏠 Home</button>
+<button class="tab" data-page="vocab">📚 Vocabulary</button>
+<button class="tab" data-page="stories">📖 Stories</button>
+<button class="tab" data-page="games">🎮 Games</button>
+</nav>
+</header>
+
+<main>
+<section id="home" class="page active">
+<div class="card hero"><h2>Welcome, Wallysson! 👋</h2><p>Aprenda inglês com vocabulário, histórias interativas e jogos.</p>
+<button class="btn" onclick="showPage('vocab')">Start Learning</button><button class="btn alt" onclick="showPage('stories')">Read a Story</button></div>
+<div class="grid">
+<div class="card stat">📚<strong id="wordCount">0</strong>words</div>
+<div class="card stat">📖<strong id="storyCount">20</strong>stories</div>
+<div class="card stat">🔎<strong>∞</strong>Word Search</div>
+<div class="card stat">📈<strong id="foundCount">0</strong>found today</div>
+</div></section>
+
+<section id="vocab" class="page"><div class="card"><h2>📚 Vocabulary</h2><p>Vocabulário do cotidiano, expressões naturais e phrasal verbs usados no inglês americano.</p><div class="controls"><select id="catFilter" onchange="renderVocab()"><option value="all">Todas as categorias</option></select></div><div id="vocabList"></div></div></section>
+
+<section id="stories" class="page">
+<div id="storyList"></div><div id="storyReader"></div>
+</section>
+
+<section id="games" class="page"><div class="card">
+<h2>🔎 Caça-palavras</h2><p>Veja a palavra em <b>português</b> e procure a tradução em <b>inglês</b>.</p>
+<div class="controls"><select id="gameCategory"></select><button class="btn" onclick="newPuzzle()">New Puzzle</button></div>
+<div id="gameProgress" class="tip" style="margin-top:12px">🏆 Desafios concluídos: 0 | Palavras encontradas: 0</div><div id="board" class="board"></div><h3>Palavras para encontrar:</h3><div id="targets" class="targets"></div><p id="status"></p>
+</div></section>
+</main>
+
+<div id="meaning" class="meaning"></div>
+
+<script>
+const data={
+"Casa":[["casa","house"],["porta","door"],["janela","window"],["cozinha","kitchen"],["quarto","bedroom"],["banheiro","bathroom"],["telhado","roof"],["parede","wall"],["chão","floor"],["escada","stairs"],["mesa","table"],["cadeira","chair"],["cama","bed"],["sofá","sofa"],["lâmpada","lamp"]],
+"Construção":[["martelo","hammer"],["serrote","saw"],["furadeira","drill"],["parafuso","screw"],["prego","nail"],["escada","ladder"],["madeira","wood"],["tinta","paint"],["pincel","brush"],["azulejo","tile"],["medida","measure"],["nível","level"],["segurança","safety"],["reparo","repair"],["ferramenta","tool"]],
+"Conversação":[["na verdade","actually"],["talvez","perhaps"],["embora","although"],["de repente","suddenly"],["geralmente","usually"],["provavelmente","probably"],["claramente","clearly"],["quase","almost"],["ainda","still"],["já","already"],["sempre","always"],["nunca","never"],["às vezes","sometimes"],["logo","soon"],["através","through"]],
+"Comida":[["maçã","apple"],["pão","bread"],["arroz","rice"],["frango","chicken"],["carne","meat"],["queijo","cheese"],["água","water"],["leite","milk"],["café","coffee"],["açúcar","sugar"],["sal","salt"],["garfo","fork"],["faca","knife"],["prato","plate"],["conta","bill"]],
+"Transporte":[["carro","car"],["estrada","road"],["viagem","travel"],["rota","route"],["trânsito","traffic"],["motorista","driver"],["combustível","fuel"],["estacionamento","parking"],["ponte","bridge"],["saída","exit"],["chegada","arrival"],["partida","departure"],["mapa","map"],["ônibus","bus"],["caminhão","truck"]],
+"Trabalho":[["trabalho","work"],["emprego","job"],["chefe","boss"],["salário","salary"],["horário","schedule"],["reunião","meeting"],["projeto","project"],["cliente","customer"],["experiência","experience"],["habilidade","skill"],["prazo","deadline"],["tarefa","task"],["equipe","team"],["pausa","break"],["turno","shift"]],
+"Compras":[["loja","store"],["preço","price"],["desconto","discount"],["recibo","receipt"],["tamanho","size"],["dinheiro","cash"],["cartão","card"],["troco","change"],["barato","cheap"],["caro","expensive"],["vendedor","seller"],["caixa","cashier"],["sacola","bag"],["produto","product"],["comprar","buy"]],
+"Emoções":[["feliz","happy"],["triste","sad"],["cansado","tired"],["animado","excited"],["nervoso","nervous"],["calmo","calm"],["preocupado","worried"],["orgulhoso","proud"],["surpreso","surprised"],["confuso","confused"],["irritado","angry"],["assustado","afraid"],["aliviado","relieved"],["entediado","bored"],["grato","grateful"]],
+"Verbos":[["aceitar","accept"],["evitar","avoid"],["escolher","choose"],["melhorar","improve"],["decidir","decide"],["perceber","notice"],["lembrar","remember"],["esquecer","forget"],["explicar","explain"],["descobrir","discover"],["alcançar","achieve"],["tentar","attempt"],["conseguir","manage"],["recusar","refuse"],["resolver","solve"]],
+"Phrasal Verbs":[["desistir","give up"],["cuidar de","look after"],["descobrir","find out"],["encontrar por acaso","run into"],["buscar / pegar","pick up"],["adiar","put off"],["dar-se bem","get along"],["aparecer","show up"],["continuar","carry on"],["resolver / descobrir","figure out"],["acordar","wake up"],["devolver","give back"]],
+"Expressões do dia a dia":[["faz sentido","make sense"],["de jeito nenhum","no way"],["por enquanto","for now"],["com certeza","for sure"],["não se preocupe","don't worry"],["depende","it depends"],["estou acostumado","I'm used to it"],["dar uma olhada","take a look"],["demorar","take a while"],["ficar sem","run out of"],["na minha opinião","in my opinion"],["até agora","so far"]]
+};
+
+const stories=[
+["🔑 The Missing Key","Mystery","Intermediate",`Daniel arrived home late after a long day. He was tired and immediately noticed something strange: his front door was unlocked. He searched his pockets, his car, and his bag, but his key was missing.
+
+Suddenly, Daniel heard quiet footsteps near the basement. He stopped and listened carefully. Then he realized that the old basement door was locked from the inside.
+
+With the help of his neighbor, Daniel discovered that his young son had been playing downstairs and accidentally locked the door. Fortunately, everything was fine.`,"Why was the basement door locked?",["Daniel lost his key.","His son accidentally locked it.","The neighbor locked it."],1],
+["☕ The Unexpected Customer","Comedy","Intermediate",`Carlos opened his small coffee shop early every morning. One rainy Tuesday, an unusual customer walked in wearing a large yellow raincoat.
+
+The customer ordered five coffees and two sandwiches. A few minutes later, more people arrived and started laughing.
+
+Carlos finally discovered the reason: they were filming a funny video about someone waiting for imaginary friends. By the end of the morning, Carlos's coffee shop had become famous in the neighborhood.`,"Why did the customer order so much food?",["He was very hungry.","It was part of a funny video.","He owned the restaurant."],1],
+["✈️ A Different Route","Adventure","Intermediate",`Ana and her family planned a weekend trip to the mountains. Heavy traffic changed their plans, so Ana suggested a different route through several small towns.
+
+At first, everyone was worried because the road was unfamiliar. However, the unexpected route became the best part of the journey.
+
+They discovered a beautiful lake, a small restaurant, and an old bridge with an impressive view. They arrived late, but everyone agreed that the adventure was worth it.`,"What did they discover on the new route?",["Interesting places.","A new car.","A large airport."],0],
+["🚀 The Message from Tomorrow","Science Fiction","Advanced",`Leo worked late one night when his computer received a message from an unknown sender. It contained one sentence: "Do not leave the building at 9:17."
+
+At first, Leo thought it was a joke. However, the message included specific details about his office.
+
+At exactly 9:17, a power failure affected the entire building. The lights went out, and everyone became confused.
+
+A second message appeared: "Now you believe me." Leo stared at the screen and wondered who had sent it.`,"Why did Leo believe the message?",["He saw the sender.","The predicted power failure happened.","His friend called him."],1],
+["👨‍👩‍👦 Saturday at Home","Family","Intermediate",`On Saturday morning, the Silva family planned to clean the house together. Nobody was excited at first.
+
+Then they created a challenge. Each person received a list of tasks, and the first person to finish could choose the family movie.
+
+The competition changed everyone's attitude. By noon, the house looked much better, and everyone had worked together. They agreed that cleaning could actually be fun.`,"What motivated the family to clean?",["A competition and a reward.","A surprise visitor.","A new pet."],0],
+["🚗 The Flat Tire","Everyday Life","Intermediate",`On his way to work, Marcus noticed that his car was moving strangely. He stopped safely and discovered a flat tire.
+
+Fortunately, he had the necessary tools in his trunk. A helpful driver also stopped and offered support.
+
+Together, they changed the tire in less than twenty minutes. Marcus arrived late, but he learned that staying calm can solve many problems.`,"What problem did Marcus discover?",["A flat tire.","An empty tank.","A broken window."],0],
+["🍕 Dinner for Everyone","Comedy","Intermediate",`Emma invited several friends for dinner. She wanted to impress everyone with her cooking.
+
+Unfortunately, she misunderstood the recipe and added far too much salt. Instead of panicking, she ordered pizza.
+
+Her friends arrived, and Emma honestly explained what had happened. Everyone laughed, and the evening became one of their favorite memories.`,"How did Emma solve the dinner problem?",["She ordered pizza.","She threw away all the food.","Her friends cooked."],0],
+["🏗️ The First Day on the Job","Work","Intermediate",`Rafael started a new job on a construction site. On his first morning, he felt nervous because everyone seemed experienced.
+
+His supervisor explained the safety rules and showed him the equipment. Rafael asked questions whenever he was unsure.
+
+By the end of the day, he felt more confident. He realized that experience begins with a first step.`,"What helped Rafael feel more confident?",["Asking questions and learning.","Leaving work early.","Working alone."],0],
+["🌧️ The Forgotten Umbrella","Everyday Life","Intermediate",`The weather forecast predicted rain, but Sofia forgot her umbrella at home.
+
+When she left work, the rain had already started. She waited under the entrance for a few minutes.
+
+Then a coworker offered to share an umbrella. They walked to the train station together and had a pleasant conversation on the way.`,"Who helped Sofia?",["A coworker.","A police officer.","Her neighbor."],0],
+["🛒 The Wrong Bag","Comedy","Intermediate",`After shopping, Daniel returned home and noticed something strange. His grocery bag contained items he had never bought.
+
+There was dog food, a birthday card, and a very expensive shampoo.
+
+Daniel checked the receipt and realized that he had accidentally taken another customer's bag. He returned to the store and exchanged it. Both customers laughed about the mistake.`,"What happened at the store?",["Daniel took the wrong bag.","The store closed early.","Daniel lost his wallet."],0],
+["🏆 The Small Victory","Motivation","Intermediate",`For several weeks, Nina practiced English every day. Sometimes she felt that her progress was slow.
+
+One afternoon, a tourist asked her for directions. Nina understood the question and answered without translating every word in her mind.
+
+It was a small moment, but she felt proud. She realized that daily practice was working.`,"Why did Nina feel proud?",["She won a competition.","She communicated in English successfully.","She traveled abroad."],1],
+["🕵️ The Open Window","Mystery","Intermediate",`When Henry returned home, he found a window open in the living room. The room was cold, and a curtain was moving in the wind.
+
+He carefully checked the house but found nothing unusual. Then he noticed a small bird sitting near the window.
+
+Apparently, the bird had flown inside and knocked the window open while trying to escape. The mystery had a simple explanation.`,"What caused the open window?",["A bird.","A thief.","A storm."],0],
+["🚂 The Last Train","Adventure","Intermediate",`After a long day in Boston, Julia suddenly noticed the time. Her last train was leaving soon.
+
+She walked quickly through the station, checking every sign. For a moment, she thought she had missed it.
+
+Fortunately, the train was delayed by five minutes. Julia entered just before the doors closed and smiled with relief.`,"Why did Julia almost miss the train?",["She lost her ticket.","She noticed the time late.","The station was closed."],1],
+["📦 The Important Package","Everyday Life","Intermediate",`A delivery driver left a package at Miguel's door while he was at work. The package was important because it contained a replacement part for his project.
+
+Miguel worried all day about the weather. When he arrived home, the package was safe under a covered area.
+
+He immediately installed the part and finished his project before dinner.`,"Why was the package important?",["It contained a needed replacement part.","It was a birthday present.","It contained money."],0],
+["🌲 Lost for Ten Minutes","Adventure","Intermediate",`During a family walk in the woods, Ben chose to explore a small path.
+
+After a few minutes, he realized that he could not see his family. Instead of running, he stayed calm and listened.
+
+Soon, he heard familiar voices calling his name. He followed the sound and found his family again.
+
+Ben was only lost for ten minutes, but the experience taught him an important lesson about staying close.`,"How did Ben find his family?",["He followed familiar voices.","He used a map.","A police officer found him."],0],
+["🎂 The Surprise Cake","Family","Intermediate",`Maria wanted to surprise her husband with a birthday cake. She spent the afternoon preparing everything carefully.
+
+When he arrived home, Maria turned off the lights and waited.
+
+Unfortunately, their young son became too excited and shouted, "Don't come into the kitchen yet!"
+
+The surprise was no longer a surprise, but everyone laughed and enjoyed the cake together.`,"Who accidentally revealed the surprise?",["Their son.","Maria's husband.","A neighbor."],0],
+["🤖 The Helpful Robot","Science Fiction","Intermediate",`In the near future, David bought a small home robot to help with simple tasks.
+
+The robot cleaned the floor, organized books, and reminded David about appointments.
+
+One day, David asked the robot to make dinner. The robot searched thousands of recipes and prepared a perfectly organized meal—except it forgot to add salt.
+
+David smiled. Even intelligent machines can make simple mistakes.`,"What did the robot forget?",["The salt.","The recipe.","The dishes."],0],
+["🎨 A New Hobby","Everyday Life","Intermediate",`After work, Olivia usually watched television. One day, she decided to try something different and bought a small set of paints.
+
+Her first painting was far from perfect, but she enjoyed the process.
+
+After several weeks of practice, she improved significantly. Olivia discovered that a new hobby can bring unexpected happiness.`,"What did Olivia discover?",["A new hobby brought her happiness.","Painting was easy immediately.","She disliked art."],0],
+["🏠 The New Neighbor","Family","Intermediate",`A new family moved into the house next door. At first, nobody in the neighborhood knew them.
+
+One afternoon, their children began playing outside. Soon, other children joined them.
+
+The parents started talking, sharing information about schools, stores, and the area.
+
+By the end of the day, the new family no longer felt like strangers.`,"How did the neighbors become friendly?",["They began talking and sharing information.","They worked together at a store.","They traveled together."],0],
+["🌟 The Second Chance","Motivation","Advanced",`Ethan applied for a position he really wanted, but he did not get the job.
+
+For a few days, he felt disappointed. Then he asked for feedback and discovered several skills he could improve.
+
+Instead of giving up, Ethan studied and practiced. Six months later, another opportunity appeared.
+
+This time, he was prepared. The earlier disappointment had helped him become stronger.`,"What did Ethan do after the disappointment?",["He gave up.","He asked for feedback and improved.","He moved away."],1],
+["🗽 A Walk Through American History","U.S. History","Intermediate",`On a sunny morning, Mia visited the Freedom Trail in Boston. The red line on the sidewalk connected important places from the American Revolution.
+
+She learned that the American colonies declared independence in 1776. At the Old State House, her guide explained how protests and public meetings helped shape the country's history.
+
+Mia realized that history was not only in books. It was all around the city.`,"What does the Freedom Trail connect?",["Shopping malls.","Historic places from the American Revolution.","Beaches in Boston."],1],
+["🦃 Thanksgiving with Neighbors","U.S. Culture","Intermediate",`The Martins invited their new neighbors to Thanksgiving dinner. Everyone brought a dish to share: turkey, potatoes, vegetables, and pumpkin pie.
+
+Before eating, each person shared one thing they were grateful for. The children helped set the table, and the adults talked about family traditions.
+
+The evening showed Mia that Thanksgiving today is often a time for food, gratitude, and spending time together.`,"What did each person share before dinner?",["A favorite movie.","Something they were grateful for.","A travel plan."],1],
+["⚾ A Summer Baseball Game","U.S. Culture","Intermediate",`During summer vacation, Noah went to a baseball game with his uncle. The stadium was full of fans wearing team shirts.
+
+His uncle explained the basics: one team hits the ball while the other team tries to get players out. Between innings, the crowd enjoyed snacks and music.
+
+Noah did not understand every rule, but he loved the atmosphere and the excitement of the game.`,"What did Noah enjoy most?",["The stadium atmosphere and excitement.","Doing homework.","Leaving before the game."],0],
+["🏞️ The National Parks","U.S. Places","Intermediate",`During a family road trip, the Parkers visited a national park. They followed marked trails, watched wildlife from a safe distance, and took pictures of the mountains.
+
+A park ranger explained that national parks protect natural areas for people and wildlife. Visitors should stay on trails and take their trash with them.
+
+The family left with great memories and a stronger respect for nature.`,"Why are national parks protected?",["To build more shopping centers.","To protect natural areas and wildlife.","To close all hiking trails."],1],
+["🎆 Independence Day","U.S. History","Intermediate",`On July 4, families across the United States celebrate Independence Day. Some people watch parades, have picnics, or enjoy fireworks in the evening.
+
+The date remembers the adoption of the Declaration of Independence in 1776. The document announced that the thirteen colonies considered themselves independent from British rule.
+
+For many people, the holiday is a chance to spend time with family and reflect on American history.`,"What does July 4 commemorate?",["The first day of summer.","The adoption of the Declaration of Independence.","The end of the Civil War."],1]];
+
+const glossary={
+arrived:"chegou",tired:"cansado",noticed:"percebeu",strange:"estranho",unlocked:"destrancada",searched:"procurou",missing:"desaparecida",suddenly:"de repente",quiet:"silencioso",footsteps:"passos",realized:"percebeu / deu-se conta",locked:"trancada",fortunately:"felizmente",unusual:"incomum",customer:"cliente",ordered:"pediu",laughed:"riu / riram",discovered:"descobriu",filming:"filmando",imaginary:"imaginários",neighborhood:"bairro",planned:"planejou",traffic:"trânsito",route:"rota",worried:"preocupado",unfamiliar:"desconhecida",unexpected:"inesperada",journey:"viagem",impressive:"impressionante",worth:"valeu a pena",unknown:"desconhecido",specific:"específicos",details:"detalhes",failure:"falha",affected:"afetou",confused:"confuso",appeared:"apareceu",wondered:"perguntou-se",challenge:"desafio",tasks:"tarefas",competition:"competição",attitude:"atitude",organized:"organizou",together:"juntos",necessary:"necessárias",trunk:"porta-malas",helpful:"prestativo",support:"ajuda / apoio",confident:"confiante",supervisor:"supervisor",equipment:"equipamento",unsure:"incerto",forecast:"previsão",umbrella:"guarda-chuva",pleasant:"agradável",grocery:"mercado / compras",receipt:"recibo",accidentally:"acidentalmente",exchanged:"trocou",progress:"progresso",directions:"direções",proud:"orgulhosa",practice:"prática",mystery:"mistério",apparently:"aparentemente",delayed:"atrasado",relief:"alívio",delivery:"entrega",replacement:"substituição",project:"projeto",installed:"instalou",woods:"floresta",explore:"explorar",familiar:"familiar",voices:"vozes",experience:"experiência",surprise:"surpresa",excited:"animado",revealed:"revelou",robot:"robô",appointments:"compromissos",recipes:"receitas",intelligent:"inteligentes",mistakes:"erros",hobby:"passatempo",process:"processo",significantly:"significativamente",happiness:"felicidade",neighbors:"vizinhos",strangers:"estranhos",applied:"candidatou-se",position:"vaga / posição",disappointed:"decepcionado",feedback:"feedback / retorno",skills:"habilidades",opportunity:"oportunidade",prepared:"preparado",stronger:"mais forte"
+};
+
+const phraseGlossary={
+ "freedom trail":"Trilha da Liberdade (rota histórica de Boston)","american revolution":"Revolução Americana","declared independence":"declararam independência","old state house":"Antiga Casa do Governo","thanksgiving dinner":"jantar de Ação de Graças","pumpkin pie":"torta de abóbora","spending time together":"passar tempo juntos","summer vacation":"férias de verão","baseball game":"jogo de beisebol","team shirts":"camisas do time","between innings":"entre as entradas do jogo","national park":"parque nacional","park ranger":"guarda-parque","natural areas":"áreas naturais","safe distance":"distância segura","independence day":"Dia da Independência","july 4":"4 de julho","declaration of independence":"Declaração de Independência","british rule":"domínio britânico","road trip":"viagem de carro","take a look":"dar uma olhada","make sense":"fazer sentido","for now":"por enquanto","for sure":"com certeza","no way":"de jeito nenhum","run out of":"ficar sem","look after":"cuidar de","find out":"descobrir","give up":"desistir","pick up":"buscar / pegar","put off":"adiar","get along":"dar-se bem","show up":"aparecer","carry on":"continuar","figure out":"descobrir / resolver","wake up":"acordar","give back":"devolver","I'm used to it":"estou acostumado com isso","in my opinion":"na minha opinião","so far":"até agora"
+};
+const translationCache={...glossary,...phraseGlossary};
+function interactiveText(text){
+ const keys=Object.keys(phraseGlossary).sort((a,b)=>b.length-a.length);
+ const phrasePattern=keys.map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\s+/g,'\\s+')).join('|');
+ const pattern=new RegExp(`(${phrasePattern}|\\b[\\w']+\\b)`,'gi');
+ return text.split(pattern).map(part=>{
+   const normalized=part.toLowerCase().replace(/\s+/g,' ').trim();
+   if(phraseGlossary[normalized]) return `<span class="tapword" data-word="${normalized.replace(/\"/g,'&quot;')}">${part}</span>`;
+   const clean=normalized.replace(/[^a-z']/g,"");
+   return clean ? `<span class="tapword" data-word="${clean}">${part}</span>` : part;
+ }).join("");
+}
+async function showMeaning(word){
+ const box=document.getElementById("meaning");
+ box.style.display="block";
+ if(translationCache[word]){
+   box.innerHTML=`<strong>${word}</strong> → ${translationCache[word]}<small>Continue lendo ou toque fora para fechar.</small>`;
+   return;
+ }
+ box.innerHTML=`<strong>${word}</strong><small>⏳ Procurando a tradução...</small>`;
+ try{
+   const response=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(word)+'&langpair=en|pt-BR');
+   const result=await response.json();
+   const translated=result?.responseData?.translatedText;
+   if(!translated) throw new Error();
+   translationCache[word]=translated;
+   box.innerHTML=`<strong>${word}</strong> → ${translated}<small>Tradução encontrada.</small>`;
+ }catch(e){
+   box.innerHTML=`<strong>${word}</strong><small>Não consegui buscar a tradução agora. Verifique sua conexão e tente novamente.</small>`;
+ }
+}
+let audioSpeed=0.82;
+function speakEnglish(text){
+ if(!('speechSynthesis' in window)){alert('Seu navegador não suporta áudio nesta versão.');return;}
+ window.speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(text);
+ u.lang='en-US'; u.rate=audioSpeed; u.pitch=1;
+ window.speechSynthesis.speak(u);
+}
+function setAudioSpeed(value){
+ audioSpeed=Number(value);
+ localStorage.setItem('wallyEnglishAudioSpeed',audioSpeed);
+}
+try{
+ const savedSpeed=Number(localStorage.getItem('wallyEnglishAudioSpeed'));
+ if(savedSpeed) audioSpeed=savedSpeed;
+}catch(e){}
+function stopAudio(){if('speechSynthesis' in window)window.speechSynthesis.cancel();}
+document.getElementById("meaning").onclick=()=>document.getElementById("meaning").style.display="none";
+
+
+function normalizeSpeech(text){
+ return (text||'').toLowerCase().replace(/[^a-z'\s]/g,' ').replace(/\s+/g,' ').trim();
+}
+function speechFeedback(expected,heard){
+ const a=normalizeSpeech(expected).split(' ').filter(Boolean);
+ const b=new Set(normalizeSpeech(heard).split(' ').filter(Boolean));
+ const hits=a.filter(w=>b.has(w)).length;
+ const score=a.length?Math.round(hits/a.length*100):0;
+ if(score>=85)return {score,cls:'pron-good',msg:`✅ Excelente! O reconhecimento identificou aproximadamente ${score}% das palavras.`};
+ if(score>=60)return {score,cls:'pron-ok',msg:`🟡 Muito bom! Aproximadamente ${score}% das palavras foram reconhecidas. Tente novamente para melhorar.`};
+ return {score,cls:'pron-bad',msg:`🔴 Vamos praticar mais. Aproximadamente ${score}% das palavras foram reconhecidas corretamente.`};
+}
+function startPronunciation(expected,feedbackId,scoreKey){
+ const feedback=document.getElementById(feedbackId);
+ const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!Recognition){
+   feedback.className='feedback pron-bad';
+   feedback.textContent='⚠️ O reconhecimento de voz não é compatível com este navegador. Tente usar Chrome ou outro navegador compatível.';
+   return;
+ }
+ stopAudio();
+ const recognition=new Recognition();
+ recognition.lang='en-US';
+ recognition.interimResults=false;
+ recognition.continuous=false;
+ recognition.maxAlternatives=1;
+ feedback.className='feedback';
+ feedback.textContent='🎤 Ouvindo... fale agora.';
+ recognition.onresult=e=>{
+   const heard=e.results[0][0].transcript;
+   const result=speechFeedback(expected,heard);
+   feedback.className='feedback '+result.cls;
+   feedback.innerHTML=`${result.msg}<br><small>O app entendeu: “${heard}”</small>`;
+   if(scoreKey){
+     try{
+       const now=new Date().toISOString();
+       const previous=JSON.parse(localStorage.getItem(scoreKey)||'null')||{};
+       const previousBest=Number(previous.bestScore ?? previous.score ?? 0);
+       const bestScore=Math.max(previousBest,result.score);
+       const record={
+         bestScore,
+         lastScore:result.score,
+         bestHeard:result.score>=previousBest?(heard):(previous.bestHeard||previous.heard||''),
+         lastHeard:heard,
+         bestUpdatedAt:result.score>=previousBest?now:(previous.bestUpdatedAt||previous.updatedAt||now),
+         lastUpdatedAt:now
+       };
+       localStorage.setItem(scoreKey,JSON.stringify(record));
+       const saved=document.getElementById('savedScore'+feedbackId.replace('storyFeedback',''));
+       if(saved)saved.textContent=`🏆 Melhor: ${record.bestScore}%  |  🕒 Última: ${record.lastScore}%`;
+     }catch(e){}
+   }
+ };
+ recognition.onerror=e=>{
+   feedback.className='feedback pron-bad';
+   feedback.textContent=e.error==='not-allowed'?'⚠️ Permita o acesso ao microfone para praticar.':'⚠️ Não consegui entender. Tente falar novamente.';
+ };
+ try{recognition.start();}catch(e){feedback.textContent='🎤 Aguarde um momento e tente novamente.';}
+}
+function renderStories(){
+ document.getElementById("storyCount").textContent=stories.length;
+ document.getElementById("storyList").innerHTML=`<div class="card"><h2>📖 Interactive Stories</h2><p>Leia em inglês e <b>toque nas palavras azuis</b> para ver o significado em português.</p><div class="tip">💡 <b>Melhor método:</b> tente entender primeiro pelo contexto. Toque somente nas palavras que você não conhece.</div></div>`+
+ stories.map((s,i)=>`<div class="card story-card" onclick="openStory(${i})"><h3>${s[0]}</h3><span class="tag">${s[1]}</span><span class="tag">${s[2]}</span><p>Toque para ler a história →</p></div>`).join("");
+}
+function openStory(i){
+ const s=stories[i];
+ const paragraphs=s[3].split(/\n\s*\n/).filter(Boolean);
+ document.getElementById("storyReader").innerHTML=`<div class="card">
+ <button class="btn alt" onclick="closeStory()">← Back to Stories</button>
+ <h1 class="reader-title">${s[0]}</h1>
+ <div class="tip">👆 Toque em qualquer palavra para ver a tradução. 🎧 Use o áudio para acompanhar a leitura. 🎤 Depois, pratique sua pronúncia.</div>
+ <div class="controls">
+   <button class="btn" id="listenStory">🎧 Ouvir história completa</button>
+   <button class="btn alt" onclick="stopAudio()">⏹ Parar áudio</button>
+   <label class="speed-control">🐢 Velocidade:
+     <select id="audioSpeed" onchange="setAudioSpeed(this.value)">
+       <option value="0.5">0.5x — Bem devagar</option>
+       <option value="0.65">0.65x — Devagar</option>
+       <option value="0.82">0.82x — Aprendizado</option>
+       <option value="1">1.0x — Normal</option>
+       <option value="1.15">1.15x — Rápido</option>
+     </select>
+   </label>
+ </div>
+ <div class="story-text">${paragraphs.map((p,j)=>`<div class="story-paragraph"><div>${interactiveText(p)}</div><div class="story-paragraph-controls"><button class="btn" data-play="${j}">▶️ Ouvir este trecho</button><button class="btn alt practice-story" data-i="${j}">🎤 Praticar este trecho</button></div><div class="feedback" id="storyFeedback${j}"></div><div class="saved-score" id="savedScore${j}"></div></div>`).join('')}</div>
+ <div class="question"><b>❓ ${s[4]}</b>${s[5].map((ans,j)=>`<button class="answer" onclick="answer(this,${j},${s[6]})">${ans}</button>`).join("")}</div></div>`;
+ document.getElementById("audioSpeed").value=String(audioSpeed);
+ document.getElementById("listenStory").onclick=()=>speakEnglish(s[3]);
+ document.querySelectorAll(".tapword").forEach(el=>el.onclick=()=>showMeaning(el.dataset.word));
+ document.querySelectorAll("[data-play]").forEach(btn=>btn.onclick=()=>speakEnglish(paragraphs[+btn.dataset.play]));
+ document.querySelectorAll(".practice-story").forEach(btn=>btn.onclick=()=>{
+   const j=+btn.dataset.i;
+   startPronunciation(paragraphs[j],`storyFeedback${j}`,`wallyEnglishScore:${i}:${j}`);
+ });
+ paragraphs.forEach((p,j)=>{
+   try{
+     const record=JSON.parse(localStorage.getItem(`wallyEnglishScore:${i}:${j}`)||'null');
+     const saved=document.getElementById('savedScore'+j);
+     if(record&&saved){
+       const best=Number(record.bestScore ?? record.score ?? 0);
+       const last=Number(record.lastScore ?? record.score ?? 0);
+       saved.textContent=`🏆 Melhor: ${best}%  |  🕒 Última: ${last}%`;
+     }
+   }catch(e){}
+ });
+ document.getElementById("storyReader").scrollIntoView({behavior:"smooth"});
+}
+function closeStory(){stopAudio();document.getElementById("storyReader").innerHTML="";window.scrollTo({top:0,behavior:"smooth"})}
+function answer(btn,n,correct){const all=btn.parentElement.querySelectorAll(".answer");all.forEach((b,i)=>{b.disabled=true;if(i===correct)b.classList.add("correct")});if(n!==correct)btn.classList.add("wrong")}
+
+let totalWords=Object.values(data).flat().length;document.getElementById('wordCount').textContent=totalWords;
+let categories=Object.keys(data),catFilter=document.getElementById('catFilter'),gameCategory=document.getElementById('gameCategory');
+categories.forEach(c=>{catFilter.add(new Option(c,c));gameCategory.add(new Option(c,c))});
+function renderVocab(){
+ const cat=catFilter.value;
+ let list=cat==='all'?Object.entries(data).flatMap(([c,arr])=>arr.map(x=>[c,...x])):data[cat].map(x=>[cat,...x]);
+ document.getElementById('vocabList').innerHTML=list.map(([c,pt,en],i)=>
+ `<div class="word-card"><small>${c}</small><h3>${pt} → ${en} <button class="listen-btn" data-word-index="${i}">🔊</button></h3><p>Toque no 🔊 para ouvir ou pratique falando a palavra.</p><button class="btn alt practice-word" data-word-index="${i}">🎤 Praticar pronúncia</button><div class="feedback" id="vocabFeedback${i}"></div></div>`).join('');
+ document.querySelectorAll('.listen-btn').forEach(btn=>btn.onclick=()=>speakEnglish(list[+btn.dataset.wordIndex][2]));
+ document.querySelectorAll('.practice-word').forEach(btn=>btn.onclick=()=>{const i=+btn.dataset.wordIndex;startPronunciation(list[i][2],`vocabFeedback${i}`)});
+}
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.page===id));window.scrollTo({top:0,behavior:"smooth"})}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+
+let grid=[],targets=[],selected=[],found=0,foundTotal=0,gridSize=10,hintUsed=false,hintTarget=null,currentPuzzleCategory='';
+const GAME_PROGRESS_KEY='wallyEnglishGameProgressV2';
+function readGameProgress(){try{return JSON.parse(localStorage.getItem(GAME_PROGRESS_KEY))||{completed:0,wordsFound:0,usedByCategory:{},completedByCategory:{}}}catch(e){return {completed:0,wordsFound:0,usedByCategory:{},completedByCategory:{}}}}
+function saveGameProgress(progress){try{localStorage.setItem(GAME_PROGRESS_KEY,JSON.stringify(progress))}catch(e){}}
+function renderGameProgress(){const p=readGameProgress();const el=document.getElementById('gameProgress');if(el)el.textContent=`🏆 Desafios concluídos: ${p.completed||0} | Palavras encontradas: ${p.wordsFound||0} | Categorias dominadas: ${Object.keys(p.completedByCategory||{}).length}`;}
+function clean(w){return w.toUpperCase().replace(/[^A-Z]/g,'')}
+function emptyGrid(){return Array.from({length:gridSize},()=>Array(gridSize).fill(''))}
+const dirs=[[0,1],[0,-1],[1,0],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]];
+
+function canPlace(word,r,c,dr,dc){
+ const er=r+dr*(word.length-1),ec=c+dc*(word.length-1);
+ if(er<0||er>=gridSize||ec<0||ec>=gridSize)return false;
+ for(let i=0;i<word.length;i++){const rr=r+dr*i,cc=c+dc*i;if(grid[rr][cc]&&grid[rr][cc]!==word[i])return false}
+ return true;
+}
+function place(word,target){
+ const options=[];
+ for(let r=0;r<gridSize;r++)for(let c=0;c<gridSize;c++)for(const [dr,dc] of dirs)if(canPlace(word,r,c,dr,dc))options.push([r,c,dr,dc]);
+ if(!options.length)return false;
+ const [r,c,dr,dc]=options[Math.floor(Math.random()*options.length)];
+ const cells=[];
+ for(let i=0;i<word.length;i++){grid[r+dr*i][c+dc*i]=word[i];cells.push([r+dr*i,c+dc*i]);}
+ if(target)target.cells=cells;
+ return true;
+}
+function verify(word){
+ for(let r=0;r<gridSize;r++)for(let c=0;c<gridSize;c++)for(const [dr,dc] of dirs){
+   let ok=true;
+   for(let i=0;i<word.length;i++){const rr=r+dr*i,cc=c+dc*i;if(rr<0||rr>=gridSize||cc<0||cc>=gridSize||grid[rr][cc]!==word[i]){ok=false;break}}
+   if(ok)return true;
+ }
+ return false;
+}
+function build(words){
+ // Tenta várias disposições e só aceita a grade quando todas as palavras
+ // foram colocadas e verificadas integralmente.
+ const ordered=[...words].sort((a,b)=>b.en.length-a.en.length);
+ for(let attempt=0;attempt<900;attempt++){
+   grid=emptyGrid();
+   let ok=true;
+   for(const target of ordered){
+     if(!place(target.en,target)){ok=false;break;}
+   }
+   if(ok && words.every(t=>t.cells && t.cells.length===t.en.length && verify(t.en)))return true;
+ }
+ return false;
+}
+function newPuzzle(){
+ currentPuzzleCategory=gameCategory.value;
+ const progress=readGameProgress();
+ const all=[...data[currentPuzzleCategory]];
+ let used=progress.usedByCategory[currentPuzzleCategory]||[];
+ let remaining=all.filter(([pt,en])=>!used.includes(en));
+ if(remaining.length===0){used=[];remaining=all;progress.usedByCategory[currentPuzzleCategory]=[];saveGameProgress(progress);}
+ const source=[...remaining].sort(()=>Math.random()-.5);
+ const chosen=source.slice(0,Math.min(8,source.length));
+ targets=chosen.map(([pt,en])=>({pt,en:clean(en),sourceEnglish:en,done:false}));
+ let success=false;
+ const longest=Math.max(...targets.map(t=>t.en.length),1);
+ const sizes=[...new Set([Math.max(10,longest),Math.max(11,longest+1),Math.max(12,longest+2),Math.max(13,longest+3)])];
+ for(const size of sizes){
+   gridSize=size;
+   if(build(targets)){success=true;break;}
+ }
+ if(!success){document.getElementById('status').textContent='Não foi possível montar todas as palavras deste desafio. Toque em “New Puzzle” para tentar novamente.';return}
+ for(let r=0;r<gridSize;r++)for(let c=0;c<gridSize;c++)if(!grid[r][c])grid[r][c]="ABCDEFGHIJKLMNOPQRSTUVWXYZ"[Math.floor(Math.random()*26)];
+ if(!targets.every(t=>verify(t.en))){newPuzzle();return}
+ // Reserve every word in this puzzle now, not only after it is found, to prevent repeats if the player starts another puzzle early.
+ const updated=readGameProgress();updated.usedByCategory=updated.usedByCategory||{};
+ const reserved=updated.usedByCategory[currentPuzzleCategory]||[];
+ chosen.forEach(([pt,en])=>{if(!reserved.includes(en))reserved.push(en)});
+ updated.usedByCategory[currentPuzzleCategory]=reserved;saveGameProgress(updated);
+ selected=[];found=0;hintUsed=false;hintTarget=null;renderBoard();
+}
+function renderBoard(){
+ const b=document.getElementById('board');
+ // Usa a largura real disponível dentro do cartão, não a largura total da tela.
+ // Assim a grade não ultrapassa o espaço útil em celulares estreitos.
+ const available=Math.max(1,Math.min(b.clientWidth || b.parentElement.clientWidth || window.innerWidth-48,480));
+ const gap=2;
+ const s=Math.max(16,Math.floor((available-(gridSize-1)*gap)/gridSize));
+ b.style.gridTemplateColumns=`repeat(${gridSize}, minmax(0, ${s}px))`;
+ b.style.width='100%';
+ b.style.maxWidth='100%';
+ b.innerHTML=grid.map((row,r)=>row.map((ch,c)=>`<div class="cell" style="width:${s}px;height:${s}px;font-size:${Math.max(11,Math.min(19,Math.floor(s*.48)))}px" data-r="${r}" data-c="${c}">${ch}</div>`).join('')).join('');
+ b.querySelectorAll('.cell').forEach(el=>el.onclick=()=>pick(+el.dataset.r,+el.dataset.c,el));
+ document.getElementById('targets').innerHTML=targets.map((t,i)=>`<span class="target" id="t${i}" data-target="${i}">${t.pt}</span>`).join('');
+ document.getElementById('targets').insertAdjacentHTML('afterend',`<div class="controls" style="margin-top:12px"><button class="btn alt" id="hintBtn">💡 Usar 1 dica</button></div>`);
+ document.querySelectorAll('.target').forEach(el=>el.onclick=()=>{if(!hintUsed&&!targets[+el.dataset.target].done){document.querySelectorAll('.target').forEach(x=>x.classList.remove('hinted'));el.classList.add('hinted');hintTarget=+el.dataset.target;document.getElementById('status').textContent='💡 Palavra selecionada. Agora toque em “Usar 1 dica”.';}});
+ document.getElementById('hintBtn').onclick=useHint;
+ document.getElementById('status').textContent='As letras precisam estar lado a lado, em linha reta: horizontal, vertical ou diagonal. Você tem 1 dica.';renderGameProgress();
+}
+function useHint(){
+ const status=document.getElementById('status');
+ if(hintUsed){status.textContent='💡 A dica deste caça-palavras já foi utilizada.';return;}
+ if(hintTarget===null){status.textContent='💡 Primeiro toque na palavra para a qual deseja receber a dica.';return;}
+ const t=targets[hintTarget];
+ if(t.done){status.textContent='Essa palavra já foi encontrada. Escolha outra.';return;}
+ const candidates=t.cells||[];
+ if(!candidates.length){status.textContent='Não consegui gerar a dica. Tente um novo jogo.';return;}
+ const [r,c]=candidates[Math.floor(Math.random()*candidates.length)];
+ const el=document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+ if(el){el.classList.add('hint-cell');}
+ hintUsed=true;
+ document.getElementById('hintBtn').disabled=true;
+ document.getElementById('hintBtn').textContent='💡 Dica utilizada';
+ document.querySelectorAll('.target').forEach(x=>x.classList.remove('hinted'));
+ status.textContent='💡 Uma letra aleatória da palavra escolhida foi revelada. Boa sorte!';
+}
+function clearSelection(){selected.forEach(x=>x.el.classList.remove('selected'));selected=[]}
+function pick(r,c,el){
+ // Uma letra pode fazer parte de mais de uma palavra.
+ // Mesmo já marcada como encontrada, ela continua selecionável para palavras cruzadas.
+ if(selected.some(x=>x.r===r&&x.c===c)){clearSelection();return}
+ if(selected.length){
+   const last=selected[selected.length-1],sr=Math.sign(r-last.r),sc=Math.sign(c-last.c);
+   if(Math.abs(r-last.r)>1||Math.abs(c-last.c)>1||(r===last.r&&c===last.c)){document.getElementById('status').textContent='❌ As letras devem estar lado a lado.';clearSelection();return}
+   if(selected.length>=2){const prev=selected[selected.length-2],pr=Math.sign(last.r-prev.r),pc=Math.sign(last.c-prev.c);if(sr!==pr||sc!==pc){document.getElementById('status').textContent='❌ A palavra precisa seguir em linha reta.';clearSelection();return}}
+ }
+ selected.push({r,c,el,ch:grid[r][c]});el.classList.add('selected');
+ const text=selected.map(x=>x.ch).join(''),rev=[...text].reverse().join('');
+ const match=targets.findIndex(t=>!t.done&&(t.en===text||t.en===rev));
+ const prefix=targets.some(t=>!t.done&&(t.en.startsWith(text)||t.en.startsWith(rev)));
+ if(match>=0){
+   selected.forEach(x=>{x.el.classList.remove('selected');x.el.classList.add('found')});
+   targets[match].done=true;document.getElementById('t'+match).classList.add('done');found++;
+   const progress=readGameProgress();progress.wordsFound=(progress.wordsFound||0)+1;
+   const used=progress.usedByCategory[currentPuzzleCategory]||[];if(!used.includes(targets[match].sourceEnglish))used.push(targets[match].sourceEnglish);progress.usedByCategory[currentPuzzleCategory]=used;saveGameProgress(progress);
+   foundTotal=progress.wordsFound;document.getElementById('foundCount').textContent=foundTotal;
+   if(found===targets.length){const p=readGameProgress();p.completed=(p.completed||0)+1;p.completedByCategory=p.completedByCategory||{};p.completedByCategory[currentPuzzleCategory]=(p.completedByCategory[currentPuzzleCategory]||0)+1;saveGameProgress(p);document.getElementById('status').textContent='🎉 Desafio concluído! Seu progresso foi salvo. Toque em “New Puzzle” para continuar.';renderGameProgress();}
+   else document.getElementById('status').textContent='✅ Correto! Continue procurando.';selected=[];
+ }else if(!prefix){document.getElementById('status').textContent='❌ Essa sequência não corresponde a uma palavra. Tente novamente.';clearSelection()}
+}
+
+renderVocab();renderStories();try{const gp=readGameProgress();document.getElementById('foundCount').textContent=gp.wordsFound||0;}catch(e){}renderGameProgress();newPuzzle();
+</script>
+</body></html>
